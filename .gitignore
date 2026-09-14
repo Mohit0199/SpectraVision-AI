@@ -1,24 +1,48 @@
-# build output
+# Build & Output
 dist/
-
-# generated types
 .astro/
+.vercel/
 
-# dependencies
+# Dependencies
 node_modules/
+backend/venv/
+venv/
+ENV/
+env/
 
-# logs
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+*.env
+*.local
+
+# Logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# environment variables
-.env
-.env.production
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
 
-# macOS-specific files
+# Test, Benchmark & Temp Files in Backend
+backend/*.jpg
+backend/*.jpeg
+backend/*.png
+backend/bench_*.py
+backend/diagnose_*.py
+backend/test_*.py
+
+# System & IDE files
 .DS_Store
-
-# jetbrains setting folder
+Thumbs.db
 .idea/
+.vscode/
+.agents/
+skills-lock.json
+CLAUDE.md

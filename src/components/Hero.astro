@@ -1,0 +1,60 @@
+---
+import { Scan, Radio, Layers, Activity } from 'lucide-astro';
+---
+
+<section class="relative pt-10 pb-8 sm:pt-14 sm:pb-12 text-center max-w-4xl mx-auto px-4 sm:px-6">
+  
+  <!-- Category Eyebrow Pill -->
+  <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-900 border border-neutral-800 text-xs text-neutral-300 font-mono mb-6">
+    <Scan class="w-3.5 h-3.5 text-cyan-400" />
+    <span>Explainable Deepfake & Synthetic Media Forensics</span>
+  </div>
+
+  <!-- Main Headline -->
+  <h1 class="text-3xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white leading-[1.1] mb-5">
+    Unmask AI generation with <span class="bg-gradient-to-r from-cyan-400 via-teal-300 to-indigo-400 bg-clip-text text-transparent">mathematical proof</span>.
+  </h1>
+
+  <!-- Value Description -->
+  <p class="text-sm sm:text-base text-neutral-400 max-w-2xl mx-auto leading-relaxed mb-8">
+    Traditional detectors guess with a black-box percentage. SpectraVision cross-examines 2D-FFT spectral harmonics, Error Level Analysis (ELA) residuals, and facial boundary seams to deliver auditable authenticity reports.
+  </p>
+
+  <!-- 4 Feature Badges -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto text-left">
+    
+    <div class="p-3 rounded-lg bg-neutral-900/60 border border-neutral-800/90 flex flex-col gap-1">
+      <div class="flex items-center gap-1.5 text-cyan-400 text-xs font-mono">
+        <Radio class="w-3.5 h-3.5" />
+        <span>2D-FFT Spectra</span>
+      </div>
+      <p class="text-[11px] text-neutral-400 leading-tight">Flags generator upsampling grid artifacts.</p>
+    </div>
+
+    <div class="p-3 rounded-lg bg-neutral-900/60 border border-neutral-800/90 flex flex-col gap-1">
+      <div class="flex items-center gap-1.5 text-amber-400 text-xs font-mono">
+        <Layers class="w-3.5 h-3.5" />
+        <span>ELA Residuals</span>
+      </div>
+      <p class="text-[11px] text-neutral-400 leading-tight">Catches localized JPEG compression mismatches.</p>
+    </div>
+
+    <div class="p-3 rounded-lg bg-neutral-900/60 border border-neutral-800/90 flex flex-col gap-1">
+      <div class="flex items-center gap-1.5 text-emerald-400 text-xs font-mono">
+        <Scan class="w-3.5 h-3.5" />
+        <span>Seam Gradients</span>
+      </div>
+      <p class="text-[11px] text-neutral-400 leading-tight">Exposes Poisson boundary blending halos.</p>
+    </div>
+
+    <div class="p-3 rounded-lg bg-neutral-900/60 border border-neutral-800/90 flex flex-col gap-1">
+      <div class="flex items-center gap-1.5 text-indigo-400 text-xs font-mono">
+        <Activity class="w-3.5 h-3.5" />
+        <span>Bio Landmarks</span>
+      </div>
+      <p class="text-[11px] text-neutral-400 leading-tight">Tracks ocular geometry & facial symmetry.</p>
+    </div>
+
+  </div>
+
+</section>

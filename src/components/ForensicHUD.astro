@@ -1,0 +1,324 @@
+---
+import { 
+  ShieldCheck, ShieldAlert, AlertTriangle, Radio, Layers, Scan, Activity, 
+  Download, FileJson, RefreshCw, Eye, Sparkles, CheckCircle2, ChevronRight, Hash, Clock, Cpu
+} from 'lucide-astro';
+---
+
+<div id="forensic-hud" class="hidden w-full max-w-5xl mx-auto px-4 sm:px-6 pb-16 animate-fade-in">
+  
+  <!-- Dossier Header Banner -->
+  <div class="p-4 sm:p-5 rounded-t-xl bg-neutral-950 border border-neutral-800 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></div>
+      <div class="flex flex-col">
+        <span class="text-xs text-neutral-400 font-mono flex items-center gap-1.5">
+          <Hash class="w-3 h-3 text-neutral-400" />
+          <span id="hud-audit-id" class="text-white font-medium">SV-20260914-XXXX</span>
+        </span>
+        <span id="hud-timestamp" class="text-[11px] text-neutral-400 font-mono">2026-09-14 14:00:00 UTC</span>
+      </div>
+    </div>
+
+    <!-- Latency & Processing Meta -->
+    <div class="flex items-center gap-4 text-xs font-mono text-neutral-400">
+      <div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-neutral-900 border border-neutral-800">
+        <Clock class="w-3.5 h-3.5 text-cyan-400" />
+        <span>Latency: <span id="hud-latency" class="text-white">342ms</span></span>
+      </div>
+      <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded bg-neutral-900 border border-neutral-800">
+        <Cpu class="w-3.5 h-3.5 text-indigo-400" />
+        <span id="hud-res-info">512x512 JPEG</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Authenticity Verdict Hero Card -->
+  <div class="p-6 sm:p-8 bg-neutral-900/50 border-x border-b border-neutral-800 flex flex-col md:flex-row items-center justify-between gap-6">
+    
+    <!-- Left: Score Gauge & Verdict -->
+    <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left w-full md:w-auto">
+      
+      <!-- Composite Score Circular Meter -->
+      <div class="relative w-28 h-28 shrink-0 flex items-center justify-center">
+        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="42" stroke="currentColor" stroke-width="8" class="text-neutral-800" fill="transparent" />
+          <circle 
+            id="hud-gauge-circle"
+            cx="50" 
+            cy="50" 
+            r="42" 
+            stroke="currentColor" 
+            stroke-width="8" 
+            stroke-dasharray="264" 
+            stroke-dashoffset="60" 
+            stroke-linecap="round" 
+            class="text-emerald-400 transition-all duration-1000 ease-out" 
+            fill="transparent" 
+          />
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <span id="hud-score-number" class="text-3xl font-bold font-mono tracking-tighter text-white">88</span>
+          <span class="text-[10px] text-neutral-400 font-mono uppercase tracking-wider -mt-1">/ 100</span>
+        </div>
+      </div>
+
+      <!-- Verdict Copy -->
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-center sm:justify-start gap-2">
+          <span id="hud-verdict-badge" class="px-2.5 py-1 rounded-full text-xs font-mono font-medium bg-emerald-950/80 text-emerald-400 border border-emerald-800/80 flex items-center gap-1.5">
+            <CheckCircle2 class="w-3.5 h-3.5" />
+            <span id="hud-verdict-badge-text">VERIFIED AUTHENTIC</span>
+          </span>
+          <span id="hud-confidence-pill" class="text-xs font-mono text-neutral-400">Confidence: <span class="text-white">92.4%</span></span>
+        </div>
+        <h2 id="hud-verdict-title" class="text-xl sm:text-2xl font-semibold tracking-tight text-white">
+          Media Authenticity Verified
+        </h2>
+        <p id="hud-verdict-desc" class="text-xs sm:text-sm text-neutral-400 max-w-xl leading-relaxed">
+          The input media exhibits natural optical sensor frequency decay and uniform spatial compression characteristics. No periodic upsampling harmonics detected.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Right: Quick Action Buttons -->
+    <div class="flex sm:flex-col gap-2.5 w-full sm:w-auto shrink-0">
+      <button 
+        id="btn-export-pdf" 
+        class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-white text-black hover:bg-neutral-200 transition-colors text-xs font-medium shadow-sm cursor-pointer"
+      >
+        <Download class="w-4 h-4 text-neutral-700" />
+        <span>Download PDF Report</span>
+      </button>
+
+      <button 
+        id="btn-export-json" 
+        class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-neutral-900 text-neutral-300 hover:text-white hover:bg-neutral-800 border border-neutral-800 transition-colors text-xs font-mono cursor-pointer"
+      >
+        <FileJson class="w-4 h-4 text-neutral-400" />
+        <span>Export JSON Log</span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Interactive Visualizer HUD & Tabs -->
+  <div class="bg-neutral-950 border-x border-b border-neutral-800 p-5 sm:p-6 flex flex-col gap-5">
+    
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <span class="text-xs font-mono uppercase tracking-wider text-neutral-400 flex items-center gap-2">
+        <Eye class="w-3.5 h-3.5 text-cyan-400" />
+        Multi-Signal Visual Inspection Matrix
+      </span>
+
+      <!-- Visualizer Tabs -->
+      <div class="flex flex-wrap items-center gap-1.5 p-1 rounded-lg bg-neutral-900 border border-neutral-800 text-xs font-mono">
+        <button data-tab="original" class="vis-tab-btn active px-3 py-1.5 rounded-md bg-neutral-800 text-white font-medium cursor-pointer transition-all">
+          1. Facial ROI
+        </button>
+        <button data-tab="fft" class="vis-tab-btn px-3 py-1.5 rounded-md text-neutral-400 hover:text-white cursor-pointer transition-all">
+          2. 2D-FFT Spectra
+        </button>
+        <button data-tab="radial" class="vis-tab-btn px-3 py-1.5 rounded-md text-neutral-400 hover:text-white cursor-pointer transition-all">
+          3. Radial Curve
+        </button>
+        <button data-tab="ela" class="vis-tab-btn px-3 py-1.5 rounded-md text-neutral-400 hover:text-white cursor-pointer transition-all">
+          4. ELA Residuals
+        </button>
+        <button data-tab="seam" class="vis-tab-btn px-3 py-1.5 rounded-md text-neutral-400 hover:text-white cursor-pointer transition-all">
+          5. Seam Gradients
+        </button>
+        <button data-tab="bio" class="vis-tab-btn px-3 py-1.5 rounded-md text-neutral-400 hover:text-white cursor-pointer transition-all">
+          6. Bio Landmarks
+        </button>
+      </div>
+    </div>
+
+    <!-- Visualizer Canvas Container -->
+    <div class="relative w-full aspect-video max-h-[420px] rounded-lg bg-black border border-neutral-800 flex items-center justify-center overflow-hidden group">
+      
+      <!-- Visualizer Images -->
+      <img id="vis-img-original" src="" alt="ROI Boxed View" class="vis-view w-full h-full object-contain" />
+      <img id="vis-img-fft" src="" alt="2D-FFT Spectrum Map" class="vis-view hidden w-full h-full object-contain" />
+      <img id="vis-img-ela" src="" alt="ELA Heatmap" class="vis-view hidden w-full h-full object-contain" />
+      <img id="vis-img-seam" src="" alt="Boundary Gradients Map" class="vis-view hidden w-full h-full object-contain" />
+      <img id="vis-img-bio" src="" alt="Biological Landmark Mesh" class="vis-view hidden w-full h-full object-contain" />
+      
+      <!-- 1D Radial Curve Canvas View -->
+      <div id="vis-view-radial" class="vis-view hidden w-full h-full p-6 flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs font-mono text-neutral-400">
+          <span>1D Radial Power Spectrum Decay (1/f² Optical Baseline vs Observed)</span>
+          <span id="vis-radial-spikes-badge" class="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 text-[10px]">0 Spikes</span>
+        </div>
+        <canvas id="radial-chart-canvas" class="w-full h-64 mt-2"></canvas>
+        <div class="flex items-center justify-between text-[10px] font-mono text-neutral-400">
+          <span>DC Center (Low Freq: 0Hz)</span>
+          <span>Mid Band</span>
+          <span>Nyquist Limit (High Freq)</span>
+        </div>
+      </div>
+
+      <!-- Cyber HUD Frame Corner Accents -->
+      <div class="absolute top-2 left-2 pointer-events-none text-[10px] font-mono text-cyan-400 bg-black/60 px-1.5 py-0.5 rounded border border-cyan-500/30">
+        <span id="vis-overlay-label">ROI_INSPECTION_MODE</span>
+      </div>
+      <div class="absolute bottom-2 right-2 pointer-events-none text-[10px] font-mono text-neutral-400 bg-black/60 px-1.5 py-0.5 rounded border border-neutral-800">
+        4-SIGNAL_FORENSIC_MATRIX
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- The 5 Forensic Signal Cards Grid -->
+  <div class="p-5 sm:p-6 bg-neutral-900/30 border-x border-b border-neutral-800 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+    
+    <!-- Signal 1: FFT -->
+    <div class="p-4 rounded-lg bg-neutral-950 border border-neutral-800 flex flex-col justify-between gap-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-1.5 text-cyan-400 text-xs font-mono">
+          <Radio class="w-3.5 h-3.5" />
+          <span>2D-FFT Spectra</span>
+        </div>
+        <span id="signal-fft-badge" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
+          CLEAN
+        </span>
+      </div>
+      <div class="flex flex-col gap-1">
+        <div class="flex items-baseline justify-between font-mono">
+          <span class="text-xs text-neutral-400">Authenticity:</span>
+          <span id="signal-fft-score" class="text-base font-semibold text-white">85.0</span>
+        </div>
+        <p id="signal-fft-desc" class="text-[11px] text-neutral-400 leading-snug">
+          Smooth radial power decay. Zero periodic upsampling spikes detected.
+        </p>
+      </div>
+      <div class="pt-2 border-t border-neutral-900 flex items-center justify-between text-[10px] font-mono text-neutral-400">
+        <span>Harmonic Peaks:</span>
+        <span id="signal-fft-meta" class="text-neutral-300">0 detected</span>
+      </div>
+    </div>
+
+    <!-- Signal 2: ELA -->
+    <div class="p-4 rounded-lg bg-neutral-950 border border-neutral-800 flex flex-col justify-between gap-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-1.5 text-amber-400 text-xs font-mono">
+          <Layers class="w-3.5 h-3.5" />
+          <span>Error Level (ELA)</span>
+        </div>
+        <span id="signal-ela-badge" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
+          CLEAN
+        </span>
+      </div>
+      <div class="flex flex-col gap-1">
+        <div class="flex items-baseline justify-between font-mono">
+          <span class="text-xs text-neutral-400">Authenticity:</span>
+          <span id="signal-ela-score" class="text-base font-semibold text-white">85.0</span>
+        </div>
+        <p id="signal-ela-desc" class="text-[11px] text-neutral-400 leading-snug">
+          Uniform 95% JPEG residual variance across 4x4 spatial blocks.
+        </p>
+      </div>
+      <div class="pt-2 border-t border-neutral-900 flex items-center justify-between text-[10px] font-mono text-neutral-400">
+        <span>Block Divergence:</span>
+        <span id="signal-ela-meta" class="text-neutral-300">0.86 delta</span>
+      </div>
+    </div>
+
+    <!-- Signal 3: Seams -->
+    <div class="p-4 rounded-lg bg-neutral-950 border border-neutral-800 flex flex-col justify-between gap-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-1.5 text-emerald-400 text-xs font-mono">
+          <Scan class="w-3.5 h-3.5" />
+          <span>Seam Gradients</span>
+        </div>
+        <span id="signal-seam-badge" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
+          CLEAN
+        </span>
+      </div>
+      <div class="flex flex-col gap-1">
+        <div class="flex items-baseline justify-between font-mono">
+          <span class="text-xs text-neutral-400">Authenticity:</span>
+          <span id="signal-seam-score" class="text-base font-semibold text-white">75.0</span>
+        </div>
+        <p id="signal-seam-desc" class="text-[11px] text-neutral-400 leading-snug">
+          Laplacian edge sharpness verified continuous across boundary ring.
+        </p>
+      </div>
+      <div class="pt-2 border-t border-neutral-900 flex items-center justify-between text-[10px] font-mono text-neutral-400">
+        <span>Seam Blur Ratio:</span>
+        <span id="signal-seam-meta" class="text-neutral-300">0.58 ratio</span>
+      </div>
+    </div>
+
+    <!-- Signal 4: Bio -->
+    <div class="p-4 rounded-lg bg-neutral-950 border border-neutral-800 flex flex-col justify-between gap-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-1.5 text-indigo-400 text-xs font-mono">
+          <Activity class="w-3.5 h-3.5" />
+          <span>Bio Landmarks</span>
+        </div>
+        <span id="signal-bio-badge" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
+          CLEAN
+        </span>
+      </div>
+      <div class="flex flex-col gap-1">
+        <div class="flex items-baseline justify-between font-mono">
+          <span class="text-xs text-neutral-400">Authenticity:</span>
+          <span id="signal-bio-score" class="text-base font-semibold text-white">85.0</span>
+        </div>
+        <p id="signal-bio-desc" class="text-[11px] text-neutral-400 leading-snug">
+          Bilateral facial symmetry and ocular positioning within biological limits.
+        </p>
+      </div>
+      <div class="pt-2 border-t border-neutral-900 flex items-center justify-between text-[10px] font-mono text-neutral-400">
+        <span>Symmetry Ratio:</span>
+        <span id="signal-bio-meta" class="text-neutral-300">0.92</span>
+      </div>
+    </div>
+
+    <!-- Signal 5: Neural Network (ViT) -->
+    <div class="p-4 rounded-lg bg-neutral-950 border border-neutral-800 flex flex-col justify-between gap-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-1.5 text-purple-400 text-xs font-mono">
+          <Sparkles class="w-3.5 h-3.5" />
+          <span>Neural ViT</span>
+        </div>
+        <span id="signal-nn-badge" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-neutral-900 text-neutral-400 border border-neutral-700">
+          OFFLINE
+        </span>
+      </div>
+      <div class="flex flex-col gap-1">
+        <div class="flex items-baseline justify-between font-mono">
+          <span class="text-xs text-neutral-400">Authenticity:</span>
+          <span id="signal-nn-score" class="text-base font-semibold text-white">--</span>
+        </div>
+        <p id="signal-nn-desc" class="text-[11px] text-neutral-400 leading-snug">
+          Vision Transformer deepfake classifier (HuggingFace Inference API).
+        </p>
+      </div>
+      <div class="pt-2 border-t border-neutral-900 flex items-center justify-between text-[10px] font-mono text-neutral-400">
+        <span>Model:</span>
+        <span id="signal-nn-meta" class="text-neutral-300">ViT-Base</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Auditable Forensic Findings Terminal -->
+  <div class="p-5 sm:p-6 bg-neutral-950 rounded-b-xl border-x border-b border-neutral-800 flex flex-col gap-4">
+    <div class="flex items-center justify-between">
+      <span class="text-xs font-mono uppercase tracking-wider text-neutral-400 flex items-center gap-2">
+        <Cpu class="w-3.5 h-3.5 text-cyan-400" />
+        Auditable Evidence Log
+      </span>
+      <span id="findings-count-pill" class="text-[11px] font-mono text-neutral-400">2 Findings Recorded</span>
+    </div>
+
+    <div id="findings-list" class="flex flex-col gap-2.5">
+      <!-- Injected dynamically via JS -->
+    </div>
+  </div>
+
+</div>
