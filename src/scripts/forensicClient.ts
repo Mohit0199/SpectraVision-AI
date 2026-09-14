@@ -6,7 +6,7 @@ let currentVisuals: any = null;
 
 const API_BASE_URL = typeof window !== 'undefined' && (window as any).SPECTRAVISION_API_URL 
   ? (window as any).SPECTRAVISION_API_URL 
-  : 'http://localhost:8000/api';
+  : (import.meta.env.PUBLIC_API_URL || 'http://localhost:8000/api');
 
 export function initForensicClient() {
   const dropzone = document.getElementById('dropzone');
