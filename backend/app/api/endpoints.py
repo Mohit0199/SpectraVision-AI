@@ -66,87 +66,94 @@ async def get_samples():
 @router.post("/analyze/image", response_model=ForensicAuditReport)
 async def analyze_image_payload(request: ImageAnalysisRequest):
     """
-    Executes complete 4-layer forensic investigation on a Base64-encoded image payload or sample ID.
+    Executes complete 5-layer forensic investigation on a Base64-encoded image payload or sample ID.
     """
     start_time = time.perf_counter()
-    exif_meta = {"has_exif": False, "make": None, "model": None}
+    exif_meta = {"has_exif": False, "format": "JPEG", "make": None, "model": None}
     
-    # Check if a preset sample was selected
-    if request.sample_id:
-        match = next((s for s in PRESET_SAMPLES if s["id"] == request.sample_id), None)
-        if not match:
-            raise HTTPException(status_code=404, detail=f"Sample '{request.sample_id}' not found.")
-        raw_b64 = match["image_b64"].split(",")[1] if "," in match["image_b64"] else match["image_b64"]
-        img_bytes = base64.b64decode(raw_b64)
-        img_bgr = decode_image_bytes(img_bytes)
-        exif_meta = extract_exif_metadata(img_bytes)
-    elif request.image_base64:
-        try:
-            raw_b64 = request.image_base64.split(",")[1] if "," in request.image_base64 else request.image_base64
+    try:
+        # Check if a preset sample was selected
+        if request.sample_id:
+            match = next((s for s in PRESET_SAMPLES if s["id"] == request.sample_id), None)
+            if not match:
+                raise HTTPException(status_code=404, detail=f"Sample '{request.sample_id}' not found.")
+            raw_b64 = match["image_b64"].split(",")[1] if "," in match["image_b64"] else match["image_b64"]
             img_bytes = base64.b64decode(raw_b64)
             img_bgr = decode_image_bytes(img_bytes)
             exif_meta = extract_exif_metadata(img_bytes)
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Invalid image base64 stream: {str(e)}")
-    else:
-        raise HTTPException(status_code=400, detail="Must provide either 'image_base64' or 'sample_id'.")
+        elif request.image_base64:
+            try:
+                raw_b64 = request.image_base64.split(",")[1] if "," in request.image_base64 else request.image_base64
+                img_bytes = base64.b64decode(raw_b64)
+                img_bgr = decode_image_bytes(img_bytes)
+                exif_meta = extract_exif_metadata(img_bytes)
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Invalid image base64 stream: {str(e)}")
+        else:
+            raise HTTPException(status_code=400, detail="Must provide either 'image_base64' or 'sample_id'.")
+            
+        # Resize to max standard dimension for deterministic latency & memory safety
+        img_bgr = resize_for_analysis(img_bgr, max_dim=1024)
+        h, w, c = img_bgr.shape
         
-    # Resize to max standard dimension for deterministic latency & memory safety
-    img_bgr = resize_for_analysis(img_bgr, max_dim=1024)
-    h, w, c = img_bgr.shape
-    
-    # 1. Detect Face ROI and Generate Cyber-HUD Boxed Visual
-    face_boxes, primary_roi, hud_boxed = detect_face_roi(img_bgr)
-    hud_boxed_b64 = encode_cv2_to_base64(hud_boxed, format_ext=".jpg", quality=88)
-    
-    # 2. Layer 1: 2D-FFT Spectral Analysis (on standardized full frame)
-    fft_metrics, fft_b64, radial_plot = analyze_fft_spectrum(img_bgr)
-    
-    # 3. Layer 2: Error Level Analysis (ELA)
-    ela_metrics, ela_b64 = analyze_error_levels(img_bgr, quality=95)
-    
-    # 4. Layer 3: Spatial Boundary & Gradient Seam Inspection
-    seam_metrics, seam_b64 = analyze_boundary_seams(img_bgr, face_boxes=face_boxes)
-    
-    # 5. Layer 4: Biological Landmark & Dermal Geometry
-    bio_metrics, bio_b64 = analyze_landmarks_and_biology(img_bgr, face_boxes=face_boxes)
-    
-    # 6. Layer 5: Neural Network Classification (HuggingFace ViT Deepfake Detector)
-    nn_metrics = analyze_nn_classification(img_bgr)
-    
-    # 7. Synthesize Multi-Signal Report
-    elapsed_ms = (time.perf_counter() - start_time) * 1000.0
-    
-    metadata = MediaMetadata(
-        width=w,
-        height=h,
-        format="JPEG/HEIF/RGB",
-        channels=c,
-        face_detected=len(face_boxes) > 0,
-        face_count=len(face_boxes),
-        face_bounding_box=list(face_boxes[0]) if len(face_boxes) > 0 else None,
-        camera_make=exif_meta.get("make"),
-        camera_model=exif_meta.get("model"),
-        has_hardware_exif=exif_meta.get("has_exif", False)
-    )
-    
-    report = compile_forensic_report(
-        fft_metrics=fft_metrics,
-        fft_b64=fft_b64,
-        radial_plot=radial_plot,
-        ela_metrics=ela_metrics,
-        ela_b64=ela_b64,
-        seam_metrics=seam_metrics,
-        seam_b64=seam_b64,
-        bio_metrics=bio_metrics,
-        bio_b64=bio_b64 if bio_b64 else hud_boxed_b64,
-        nn_metrics=nn_metrics,
-        hud_boxed_b64=hud_boxed_b64,
-        metadata=metadata,
-        processing_time_ms=elapsed_ms
-    )
-    
-    return report
+        # 1. Detect Face ROI and Generate Cyber-HUD Boxed Visual
+        face_boxes, primary_roi, hud_boxed = detect_face_roi(img_bgr)
+        hud_boxed_b64 = encode_cv2_to_base64(hud_boxed, format_ext=".jpg", quality=88)
+        
+        # 2. Layer 1: 2D-FFT Spectral Analysis (on standardized full frame)
+        fft_metrics, fft_b64, radial_plot = analyze_fft_spectrum(img_bgr)
+        
+        # 3. Layer 2: Error Level Analysis (ELA)
+        ela_metrics, ela_b64 = analyze_error_levels(img_bgr, quality=95)
+        
+        # 4. Layer 3: Spatial Boundary & Gradient Seam Inspection
+        seam_metrics, seam_b64 = analyze_boundary_seams(img_bgr, face_boxes=face_boxes)
+        
+        # 5. Layer 4: Biological Landmark & Dermal Geometry
+        bio_metrics, bio_b64 = analyze_landmarks_and_biology(img_bgr, face_boxes=face_boxes)
+        
+        # 6. Layer 5: Neural Network Classification (HuggingFace ViT Deepfake Detector)
+        nn_metrics = analyze_nn_classification(img_bgr)
+        
+        # 7. Synthesize Multi-Signal Report
+        elapsed_ms = (time.perf_counter() - start_time) * 1000.0
+        
+        metadata = MediaMetadata(
+            width=w,
+            height=h,
+            format=exif_meta.get("format", "JPEG"),
+            channels=c,
+            face_detected=len(face_boxes) > 0,
+            face_count=len(face_boxes),
+            face_bounding_box=list(face_boxes[0]) if len(face_boxes) > 0 else None,
+            camera_make=exif_meta.get("make"),
+            camera_model=exif_meta.get("model"),
+            has_hardware_exif=exif_meta.get("has_exif", False)
+        )
+        
+        report = compile_forensic_report(
+            fft_metrics=fft_metrics,
+            fft_b64=fft_b64,
+            radial_plot=radial_plot,
+            ela_metrics=ela_metrics,
+            ela_b64=ela_b64,
+            seam_metrics=seam_metrics,
+            seam_b64=seam_b64,
+            bio_metrics=bio_metrics,
+            bio_b64=bio_b64 if bio_b64 else hud_boxed_b64,
+            nn_metrics=nn_metrics,
+            hud_boxed_b64=hud_boxed_b64,
+            metadata=metadata,
+            processing_time_ms=elapsed_ms
+        )
+        
+        return report
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Forensic computation error: {str(e)}")
 
 @router.post("/analyze/upload", response_model=ForensicAuditReport)
 async def analyze_file_upload(file: UploadFile = File(...)):

@@ -50,6 +50,7 @@ def extract_exif_metadata(img_bytes: bytes) -> Dict[str, Any]:
     """Extracts hardware camera EXIF metadata if present."""
     metadata: Dict[str, Any] = {
         "has_exif": False,
+        "format": "JPEG",
         "make": None,
         "model": None,
         "software": None,
@@ -59,6 +60,8 @@ def extract_exif_metadata(img_bytes: bytes) -> Dict[str, Any]:
     }
     try:
         pil_img = Image.open(io.BytesIO(img_bytes))
+        if pil_img.format:
+            metadata["format"] = str(pil_img.format).upper()
         exif = pil_img.getexif()
         if exif and len(exif) > 0:
             metadata["has_exif"] = True

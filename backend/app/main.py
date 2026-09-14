@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .core.config import settings
@@ -12,7 +13,7 @@ app = FastAPI(
 # Configure CORS for Astro frontend (Vercel, Cloudflare, localhost)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Allow all for local dev & preview deployments
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -21,7 +22,7 @@ app.add_middleware(
 # Include API Router
 app.include_router(api_router, prefix=settings.API_PREFIX)
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def root():
     return {
         "engine": settings.APP_NAME,
@@ -32,6 +33,11 @@ def root():
         "sample_cases": f"{settings.API_PREFIX}/samples"
     }
 
+@app.api_route("/health", methods=["GET", "HEAD"])
+def health_probe():
+    return {"status": "online"}
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=True)
