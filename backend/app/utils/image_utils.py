@@ -105,17 +105,23 @@ def detect_face_roi(img: np.ndarray) -> Tuple[List[Tuple[int, int, int, int]], O
     """
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     
-    # Load OpenCV default frontal face cascade
-    cascade_path = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
-    face_cascade = cv2.CascadeClassifier(cascade_path)
-    
-    faces = face_cascade.detectMultiScale(
-        gray,
-        scaleFactor=1.1,
-        minNeighbors=5,
-        minSize=(60, 60),
-        flags=cv2.CASCADE_SCALE_IMAGE
-    )
+    # Safely load OpenCV frontal face cascade
+    faces = []
+    try:
+        cascade_dir = getattr(cv2.data, 'haarcascades', '')
+        if cascade_dir:
+            cascade_path = cascade_dir + 'haarcascade_frontalface_default.xml'
+            face_cascade = cv2.CascadeClassifier(cascade_path)
+            if not face_cascade.empty():
+                faces = face_cascade.detectMultiScale(
+                    gray,
+                    scaleFactor=1.1,
+                    minNeighbors=5,
+                    minSize=(60, 60),
+                    flags=cv2.CASCADE_SCALE_IMAGE
+                )
+    except Exception:
+        faces = []
     
     hud_img = img.copy()
     primary_roi = None
