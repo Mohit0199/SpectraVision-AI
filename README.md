@@ -90,32 +90,8 @@ Open `http://localhost:4321` in your browser.
 
 ---
 
-## ☁️ 100% Free-Tier Deployment Guide
-
-### Frontend → Vercel / Cloudflare Pages (100% Free)
-1. Push the repository to GitHub.
-2. In Vercel, click **Import Project** and select `SpectraVision_AI`.
-3. Framework preset: **Astro** (Build command: `npm run build`, Output: `.vercel/output`).
-4. Set Environment Variable: `PUBLIC_API_URL = https://your-backend-url.hf.space/api` (or deploy statically).
-
-### Backend → Hugging Face Spaces / Render (100% Free)
-1. Create a new Space on **Hugging Face** (`SDK: Docker`).
-2. Point to the `backend/` folder.
-3. Hugging Face will automatically build the `Dockerfile` and provide a permanent free HTTPS endpoint for your FastAPI engine.
-
----
-
-## 💼 Client Acquisition & Pitch Strategy (Insightforge)
-
-### 🎯 Upwork / Cold Outreach Pitch Script
-> *"I developed SpectraVision AI—an explainable deepfake and synthetic media forensic auditing platform. Rather than using black-box neural networks that output unverified guesses, it computes 2D-FFT spectral harmonics, Error Level Analysis (ELA) residuals, and facial boundary seam blur to generate court-grade authenticity certificates in under 400ms.*
->
-> *I can deploy a private instance of this forensic engine tailored to your KYC onboarding or recruitment pipeline."*
-
----
-
-## 👤 Developer
-* **Architect:** Mohit Rathod (Founder, Insightforge)
-* **Portfolio:** [mohit0199.github.io](https://mohit0199.github.io/)
+## 👤 Developer & Contact
+* **Developer:** [Mohit Rathod](https://mohit0199.github.io/)
 * **LinkedIn:** [Mohit Rathod](https://www.linkedin.com/in/mohit-rathod-7991241b5/)
 * **GitHub:** [@Mohit0199](https://github.com/Mohit0199)
+
